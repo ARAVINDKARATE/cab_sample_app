@@ -1,5 +1,5 @@
 import 'package:amazon_cognito_identity_dart_2/cognito.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // For secure token storage
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AWSCognitoService {
   final String userPoolId = 'ap-south-1_UNbYGfFWE';
@@ -62,14 +62,14 @@ class AWSCognitoService {
       username: formattedPhoneNumber,
       password: password,
     );
+    final session = await cognitoUser.authenticateUser(authDetails);
 
     try {
-      final session = await cognitoUser.authenticateUser(authDetails);
       await storage.write(key: 'accessToken', value: session?.accessToken.jwtToken); // Store token securely
       return session;
     } catch (e) {
       print('Error logging in: $e');
-      return null;
+      return session;
     }
   }
 

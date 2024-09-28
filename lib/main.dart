@@ -16,9 +16,8 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Uber Clone',
-      initialRoute: '/home',
+      initialRoute: '/login',
       getPages: [
-        GetPage(name: '/todo', page: () => LoginScreen()),
         GetPage(name: '/login', page: () => LoginScreen()),
         GetPage(name: '/signup', page: () => SignupScreen()),
         GetPage(name: '/confirmOtp', page: () => OtpConfirmationScreen()),

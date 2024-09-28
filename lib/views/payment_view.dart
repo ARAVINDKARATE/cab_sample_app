@@ -1,8 +1,9 @@
+import 'package:cab_sample_app/controller/payment_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
 
-class PaymentScreen extends StatefulWidget {
+class PaymentScreen extends StatelessWidget {
   final String cabType;
   final LatLng currentLocation;
   final String destinationLocation;
@@ -15,57 +16,9 @@ class PaymentScreen extends StatefulWidget {
   });
 
   @override
-  _PaymentScreenState createState() => _PaymentScreenState();
-}
-
-class _PaymentScreenState extends State<PaymentScreen> {
-  final _formKey = GlobalKey<FormState>();
-
-  // Controllers for form fields
-  final _cardNumberController = TextEditingController();
-  final _expiryDateController = TextEditingController();
-  final _cvvController = TextEditingController();
-
-  // Regular expression to validate card number (Basic Luhn validation can be added later)
-  String? _validateCardNumber(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter your card number';
-    } else if (value.length < 16) {
-      return 'Card number must be 16 digits';
-    }
-    return null;
-  }
-
-  // Regular expression to validate expiry date format MM/YY
-  String? _validateExpiryDate(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter expiry date';
-    } else if (!RegExp(r"^(0[1-9]|1[0-2])\/?([0-9]{2})$").hasMatch(value)) {
-      return 'Enter a valid expiry date (MM/YY)';
-    }
-    return null;
-  }
-
-  // Validating CVV (Typically 3 digits)
-  String? _validateCVV(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter CVV';
-    } else if (value.length != 3) {
-      return 'CVV must be 3 digits';
-    }
-    return null;
-  }
-
-  @override
-  void dispose() {
-    _cardNumberController.dispose();
-    _expiryDateController.dispose();
-    _cvvController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final paymentController = PaymentController(); // Create an instance of the controller
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Payment'),
@@ -76,7 +29,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Form(
-            key: _formKey,
+            key: paymentController.formKey, // Use the controller's form key
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -96,7 +49,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             Icon(Icons.directions_car, color: Colors.blueAccent),
                             const SizedBox(width: 10),
                             Text(
-                              'Cab Type: ${widget.cabType}',
+                              'Cab Type: $cabType',
                               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                           ],
@@ -108,7 +61,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(
-                                'Current Location: (${widget.currentLocation.latitude.toStringAsFixed(3)}, ${widget.currentLocation.longitude.toStringAsFixed(3)})',
+                                'Current Location: (${currentLocation.latitude.toStringAsFixed(3)}, ${currentLocation.longitude.toStringAsFixed(3)})',
                                 style: const TextStyle(fontSize: 16),
                               ),
                             ),
@@ -121,7 +74,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(
-                                'Destination: ${widget.destinationLocation}',
+                                'Destination: $destinationLocation',
                                 style: const TextStyle(fontSize: 16),
                               ),
                             ),
@@ -138,21 +91,21 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
-                  controller: _cardNumberController,
+                  controller: paymentController.cardNumberController,
                   decoration: InputDecoration(
                     labelText: 'Card Number',
                     prefixIcon: Icon(Icons.credit_card),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                   keyboardType: TextInputType.number,
-                  validator: _validateCardNumber,
+                  validator: paymentController.validateCardNumber,
                 ),
                 const SizedBox(height: 20),
                 Row(
                   children: [
                     Expanded(
                       child: TextFormField(
-                        controller: _expiryDateController,
+                        controller: paymentController.expiryDateController,
                         decoration: InputDecoration(
                           labelText: 'Expiration Date',
                           hintText: 'MM/YY',
@@ -160,13 +113,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                         keyboardType: TextInputType.datetime,
-                        validator: _validateExpiryDate,
+                        validator: paymentController.validateExpiryDate,
                       ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: TextFormField(
-                        controller: _cvvController,
+                        controller: paymentController.cvvController,
                         decoration: InputDecoration(
                           labelText: 'CVV',
                           prefixIcon: Icon(Icons.lock),
@@ -174,7 +127,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         ),
                         keyboardType: TextInputType.number,
                         obscureText: true,
-                        validator: _validateCVV,
+                        validator: paymentController.validateCVV,
                       ),
                     ),
                   ],
@@ -183,7 +136,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 Center(
                   child: ElevatedButton(
                     onPressed: () {
-                      if (_formKey.currentState!.validate()) {
+                      if (paymentController.formKey.currentState!.validate()) {
                         // Show snackbar only if all inputs are valid
                         Get.snackbar('Payment Successful', 'Your ride has been confirmed.');
                       }
